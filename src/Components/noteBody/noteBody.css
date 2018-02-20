@@ -2,11 +2,13 @@
     width:90%; 
     height: 500px;
     color: black;
+    border: 1px solid black;
 }
 .red{
     width:90%; 
     height: 500px;
  color: red;
+ border: 1px solid black;
 }
 
 

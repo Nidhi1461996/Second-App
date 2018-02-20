@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import './App.css';
 import Heading from './Components/heading/Heading';
 import Footer from './Components/footer/Footer';
 import MainBody from './Components/body/Body';
 import ViewNotes from './Components/viewNotes/ViewNotes';
+import dispatchSaveAction from './redux/actions';
 
 class App extends Component {
   constructor() {
@@ -14,7 +16,7 @@ class App extends Component {
       editId: 0,
       pageId: 1,
       noteId: 1,
-      savedNotes: [],
+      // savedNotes: [],
       editFlag: 0,
     };
   }
@@ -22,22 +24,26 @@ class App extends Component {
   saveFromNotepad = (title, notes, editId) => {
     if (this.state.editFlag === 1) {
       const findindex = element => element.id === this.state.editId;
-      const index = this.state.savedNotes.findIndex(findindex);
-      this.state.savedNotes[index] = { id: editId, title: this.state.editTitle, notes };
-      const editObject = this.state.savedNotes;
+      const index = this.props.savedNotes.findIndex(findindex);
+      this.props.savedNotes[index] = { id: editId, title: this.state.editTitle, notes };
+      const editObject = this.props.savedNotes;
       this.setState({
         savedNotes: editObject,
         pageId: 0,
         editFlag: 0,
-        title: this.state.savedNotes[index].title,
+        title: this.props.savedNotes[index].title,
       });
     } else {
-      const noteObject = this.state.savedNotes.concat([{ id: this.state.noteId, title, notes }]);
+      //      const noteObject = this.props.savedNotes.concat([]);
       this.setState({
-        savedNotes: noteObject,
-        noteId: this.state.noteId + 1,
         pageId: 0,
       });
+      this.props.dispatchSaveNote({ id: this.state.noteId, title, notes });
+      // this.setState({
+      //   savedNotes: noteObject,
+      //   noteId: this.state.noteId + 1,
+      //   pageId: 0,
+      // });
     }
   }
   changeDisplay = () => {
@@ -65,10 +71,11 @@ class App extends Component {
             save="save"
             char="150 charatcters"
             saveTheNotes={this.saveFromNotepad}
-            notes={this.state.savedNotes}
+            notes={this.props.savedNotes}
             editId={this.state.editId}
             editContent={this.state.editContent}
             editTitle={this.state.title}
+
           />
           <Footer value="About" />
         </div>
@@ -78,13 +85,22 @@ class App extends Component {
       <div className="site">
         <Heading value="Start taking notes" />
         <ViewNotes
-          notes={this.state.savedNotes}
+          notes={this.props.savedNotes}
           changePage={this.changeDisplay}
           editNotes={this.editNotes}
         />
       </div>
-
     );
   }
 }
-export default App;
+
+const mapStatesToProps = state => ({
+  savedNotes: state.savedNotes,
+});
+
+const mapDispatchToProps = dispatch => ({
+  dispatchSaveNote: noteData => dispatch(dispatchSaveAction(noteData)),
+});
+
+
+export default connect(mapStatesToProps, mapDispatchToProps)(App);
